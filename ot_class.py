@@ -10,14 +10,14 @@ from pyvis.network import Network
 from PIL import Image
 
 def save_models(models, filename):
-    with open(filename, 'wb') as f:
+    with open('data_dumps/' + filename, 'wb') as f:
         pickle.dump(models, f)
         f.close()
     
     return
 
 def load_models(filename):
-    with open(filename, "rb") as f:
+    with open('data_dumps/' + filename, "rb") as f:
         models = pickle.load(f)
         f.close()
     
@@ -310,7 +310,7 @@ def construct_data(n, k = 2, labels_per_class=5):
 def construct_mu(n, k, train_ind, train_labels):
     mu = np.zeros((n,k))
     
-    mu[train_ind] = train_labels
+    mu[train_ind] = train_labels - train_labels.sum(axis = 0)/train_ind.size
 
     return mu
 
