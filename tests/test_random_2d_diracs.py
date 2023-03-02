@@ -3,8 +3,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from wass_dist import wass_dist
-from graph_utils import construct_weightmatrix, graph_grad
+from ot_class.wass_dist import wass_dist
+from ot_class.graph_utils import construct_weightmatrix, graph_grad
 
 
 a_ind = [0, 12, 21]
@@ -29,5 +29,4 @@ u = wass_dist(W, mu, u0, -graph_grad(u0, W), tol = 1e-5,
                 max_iter=1e6, verbose=True, rate = 1)
 
 print( (u * mu).sum())
-
 
