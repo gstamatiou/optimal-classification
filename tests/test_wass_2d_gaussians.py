@@ -37,3 +37,5 @@ for m in [20, 40, 60, 80, 100]:
     
     res = ot.emd(a, b, M, log = True)
     print(res[1]['cost'])
+    
+# The result is 15 (lower bound by jensen, upper bound by W2 distance)
