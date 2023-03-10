@@ -4,7 +4,7 @@
 import numpy as np
 from numpy.linalg import norm
 from numpy.random import rand
-from graph_utils import graph_grad, graph_div
+from graph_utils import graph_grad, graph_div, grad
 from pd_alg import power_iteration, pd_alg
 
 def proxF(V, sigma):
@@ -26,7 +26,7 @@ def wass_dist(W, mu, u0, V0, tol = 1e-2, max_iter = 1e5, verbose = False, rate =
     Kstar = lambda V: -graph_div(V, W)
     Kstar_K = lambda u: Kstar(K(u))
     
-    _, eig = power_iteration(Kstar_K, rand(n), tol = 1e-2, verbose = False)
+    _, eig = power_iteration(Kstar_K, rand(n,1) * 10, tol = 1e-2, verbose = False)
     K_norm = np.sqrt(eig)
     sigma = rate/ (2 * K_norm)
     tau = rate/(2 * K_norm )
