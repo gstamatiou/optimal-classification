@@ -29,6 +29,36 @@ def eta(t):
     else:
         return 4*(1-t)
 
+def tf_eta(t):
+    return tf.scatter_nd(tf.where(t<=1), 4 * (1 - tf.gather_nd(t, tf.where(t <= 1))), shape=t.shape)
+
+def tf_epsilon_matrix(X, epsilon):
+    n = X.shape[0]
+    W = tf.zeros([n,n])
+    pair_diff = tf.expand_dims(X, axis=1) - X
+    normed_diff = tf.linalg.norm(pair_diff, axis = 2)
+    W = 1/epsilon*tf_eta(normed_diff/epsilon)
+            
+    return W
+
+def slow_epsilon_matrix(X, epsilon):
+    n = X.shape[0]
+    W = np.zeros((n,n))
+    
+    for i in range(n):
+        for j in range(n):
+            W[i,j] = 1/epsilon*eta(np.linalg.norm(X[i]-X[j])/epsilon)
+            
+    return W
+
+# =============================================================================
+# # Test tf_epsilon_matrix
+# n = 10
+# X = tf.random.uniform([n,2], minval = -10, maxval = 10, dtype = "float32")
+# print(tf.linalg.norm(tf_epsilon_matrix(X, 1) - slow_epsilon_matrix(X, 1)))
+# 
+# =============================================================================
+
 def slow_epsilon_matrix(X, epsilon):
     n = X.shape[0]
     W = np.zeros((n,n))
@@ -81,9 +111,9 @@ def slow_epsilon_matrix(X, epsilon):
 exponent = 1/12
 res = dict()
 k = 1
-for n in np.arange(5, 35, 3)**2:
+for n in np.arange(10, 35, 3)**2:
     xv, yv = np.meshgrid(np.linspace(0, 1, int(np.sqrt(n))), np.linspace(0, 1, int(np.sqrt(n))))
-    X = np.array([xv.flatten(), yv.flatten()]).T
+    X = tf.constant(np.array([xv.flatten(), yv.flatten()]).T, dtype="float32")
 
     rn = np.sqrt(2*np.linalg.norm(X[0] - X[1])**2)/2
     sn = rn**exponent
@@ -94,15 +124,15 @@ for n in np.arange(5, 35, 3)**2:
     mu = tf.scatter_nd(tf.constant([[0],[n-1]]), tf.constant([[1],[-1]], dtype="float32"), shape=[n,1])
 
     
-    W = slow_epsilon_matrix(X, sn)
+    W = tf_epsilon_matrix(X, sn)
     #W = construct_weightmatrix(X)
     #W = gl.weightmatrix.epsilon_ball(X, sn).toarray()
 
         
     print(f"neighbors = {np.count_nonzero(W[int(n/2)])}\t", end='')
     
-    u0 = np.random.rand(n,1)
-    u2d = wass_dist(tf.constant(W, dtype="float32"), mu, tf.constant(u0, dtype="float32"), tf.zeros([n,n,k], dtype="float32"), tol = 1e-7, 
+    u0 = tf.random.uniform([n,1])
+    u2d = wass_dist(tf.constant(W, dtype="float32"), mu, u0, tf.zeros([n,n,k], dtype="float32"), tol = 1e-7, 
                     max_iter=1e5, verbose=False)
     #print(f"max_grad = {np.abs(graph_grad(u2d, W)).max()} ", end = '')
     
