@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from numpy.linalg import norm
+import tensorflow as tf
+from tensorflow.linalg import norm
 
 def power_iteration(K, x_0, tol = 1e-3, num_iterations = 10000000, verbose = False):
     b = x_0/norm(x_0)
@@ -32,7 +33,7 @@ def pd_alg(proxF, proxG, K, Kstar, tau, sigma, x0, y0, tol = 1e-2,
         xx = proxG(x - tau * Kstar(yy))
         xx_bar = 2 * xx - x
 
-        difference = np.max(np.abs(xx - x))
+        difference = tf.math.reduce_max(np.abs(xx - x))
         it += 1
 
         x = xx

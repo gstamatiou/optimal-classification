@@ -3,6 +3,7 @@
 
 import numpy as np
 from numpy.linalg import norm
+import tensorflow as tf
 
 # Calculates vector of degrees for the weight matrix W
 # W: (n,k) numpy array
@@ -20,6 +21,9 @@ def graph_div(V, W):
     div = ( V * (W[:, :, np.newaxis] + np.zeros((n,n,k))) ).sum(axis = 1)
     return div
 
+def tf_graph_div(V,W):
+    return tf.reduce_sum(tf.expand_dims(W, axis = 2) * V, axis = 1)
+   
 """
 Computes the weighted gradient of u
 u: (n,k) matrix
@@ -34,6 +38,30 @@ def graph_grad(u, W):
     gradu = W[:, :, np.newaxis] * (-u[:, np.newaxis] + u)
 
     return gradu
+
+
+def tf_graph_grad(u, W):
+    gradu = np.expand_dims(W, axis = -1) * (-tf.expand_dims(u, axis=1) + u)
+
+    return gradu
+
+# =============================================================================
+# # Test tf_graph_div, tf_graph_grad
+# n = 10
+# k = 3
+# V = tf.random.uniform([n,n,k], minval = -10, maxval = 10)
+# W = tf.random.uniform([n,n], minval = 0, maxval = 10)
+# _div = np.zeros((n,k))
+# 
+# for i in range(n):
+#     for j in range(n):
+#         _div[i] += W[i,j].numpy() * V[i,j].numpy()
+# 
+# print(np.max(np.abs(_div- tf_graph_div(V, W).numpy())))
+# 
+# u = tf.random.uniform([n,k], minval = -10, maxval = 10)
+# print(np.max(np.abs(graph_grad(u.numpy(), W) - tf_graph_grad(u, W))))
+# =============================================================================
 
 """
 Computes the non-weighted gradient of u
