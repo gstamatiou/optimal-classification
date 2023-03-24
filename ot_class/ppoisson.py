@@ -5,8 +5,8 @@ import numpy as np
 import time
 import graphlearning as gl
 from scipy.optimize import minimize, LinearConstraint
-from .graph_utils import degrees
-from .energy import penergy, jacobian
+from graph_utils import degrees
+from energy import penergy, jacobian
 from numpy.linalg import norm
 
 def grad_descent(gradient, start, rate, tolerance = 1e-2, max_steps = int(1e9)):

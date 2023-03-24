@@ -8,6 +8,7 @@ from sklearn import datasets
 import graphlearning as gl
 from numpy.random import rand, seed
 import matplotlib.pyplot as plt
+from scipy import sparse
 
 def dirichlet_jacobian(u, W, g, p, f):
     n = u.shape[0]
@@ -59,7 +60,7 @@ def dirichlet_energy(u, W, g, p, f):
     return H.sum()/(2*p) + (f*u).sum()
     
     
-def dirichlet_solve(u0, W, g, p, f, train_ind):
+def dirichlet_solve(u0, W, g, p, f, train_ind, tol = 1e-2):
     n = u0.shape[0]
     m = g.shape[0]
     
@@ -72,7 +73,7 @@ def dirichlet_solve(u0, W, g, p, f, train_ind):
         
     jac = lambda x: dirichlet_jacobian(x, W_rearanged, g.reshape((m,1)), p, f)
     hess = lambda x: dirichlet_hessian(x, W_rearanged, g.reshape((m,1)), p)
-    u = newton(u0, lambda x: x, jac, hess, verbose=False, tol=1e-9).reshape(n)
+    u = newton(u0, lambda x: x, jac, hess, verbose=False, tol=1e-5).reshape(n)
     g = g.reshape(m)
     bigger_u = np.concatenate((u, g))
     bigger_u[np.concatenate((train_ind, np.arange(n, n+m)))] = \
@@ -141,22 +142,57 @@ def dirichlet_solve(u0, W, g, p, f, train_ind):
 # print(func_grad(x0).shape)
 # =============================================================================
 
-# Two moons test
-n = 90
-m = 12
-p = 2
+# =============================================================================
+# #============== Two moons test
+# n = 90
+# m = 12
+# p = 2
+# 
+# X,labels = datasets.make_moons(n_samples=n+m,noise=0.1, random_state = 0)
+# seed(0)
+# train_ind = np.sort(np.random.choice(np.arange(n), size=m, replace = False))
+# g = labels[train_ind]
+# f = np.zeros((n,1))
+# W = construct_weightmatrix(X)
+# 
+# # plt.scatter(X[:,0], X[:,1], alpha=0.5)
+# plt.scatter(X[train_ind,0], X[train_ind,1], marker='x', c='r')
+# # plt.scatter(X[train_ind,0], X[train_ind,1], c=g, alpha = 0.8)
+# 
+# bigger_u = dirichlet_solve(rand(n,1), W, g, p, f, train_ind)
+# plt.scatter(X[:,0], X[:,1], alpha=0.5, c=np.round(bigger_u))
+# print((W*grad(bigger_u)).sum(axis = 1))
+# 
+# =============================================================================
 
-X,labels = datasets.make_moons(n_samples=n+m,noise=0.1, random_state = 0)
-seed(0)
-train_ind = np.sort(np.random.choice(np.arange(n), size=m, replace = False))
-g = labels[train_ind]
-f = np.zeros((n,1))
-W = construct_weightmatrix(X)
-
-# plt.scatter(X[:,0], X[:,1], alpha=0.5)
-plt.scatter(X[train_ind,0], X[train_ind,1], marker='x', c='r')
-# plt.scatter(X[train_ind,0], X[train_ind,1], c=g, alpha = 0.8)
-
-bigger_u = dirichlet_solve(rand(n,1), W, g, p, f, train_ind)
-plt.scatter(X[:,0], X[:,1], alpha=0.5, c=np.round(bigger_u))
-print((W*grad(bigger_u)).sum(axis = 1))
+# =============================================================================
+# # ========== MNIST test ====
+# from helpers import calculate_accuracy
+# n = 1000
+# k = 10
+# X,labels = gl.datasets.load('mnist')
+# X = X[:n]
+# labels = labels[:n]
+# W = gl.weightmatrix.knn(X,5).toarray()
+# 
+# rate = 1
+# train_ind = gl.trainsets.generate(labels, rate = rate, seed = 1)
+# train_labels = labels[train_ind]
+# m = train_labels.size
+# 
+# u = np.zeros((k,n))
+# f = np.zeros((n-m,1))
+# for i in range(k):
+#     g = np.copy(train_labels)
+#     g[train_labels == i] = 1
+#     g[train_labels != i] = 0
+#     
+#     u[i] = dirichlet_solve(np.zeros((n-m,1)),W,g,2,f,train_ind)
+#     
+# predictions = np.argmax(u, axis = 0)
+# acc = calculate_accuracy(predictions, labels)
+# 
+# print(f"Accuracy = {acc*100:.2f}%")
+# 
+# 
+# =============================================================================

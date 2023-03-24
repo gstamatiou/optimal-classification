@@ -73,26 +73,28 @@ for i in range(train_ind.size):
     y[i] = euclidean_basis(train_labels[i], k)
 
 
-models = load_models("twomoons_data")
-
-
-D = degrees(W)
-jac = lambda u : jacobian(u, W, train_ind, y, p)
-hess = lambda u: hessian(u, W, train_ind, y, p)
-proj = lambda u: (u.reshape((n,k)) - ((1/D.sum()) * (np.diag(D) @ u.reshape((n,k))).sum(axis = 0))).flatten()
-
-u_flat = newton(models[4].u.flatten(), proj, jac, hess, verbose=True)
-
 # =============================================================================
-# start_time = time.time()
-# u = newton(models[255].u.flatten(), W, train_ind, y, p, verbose=True).reshape((n,k))
-# end_time = time.time()
+# models = load_models("twomoons_data")
+# 
+# 
+# D = degrees(W)
+# jac = lambda u : jacobian(u, W, train_ind, y, p)
+# hess = lambda u: hessian(u, W, train_ind, y, p)
+# proj = lambda u: (u.reshape((n,k)) - ((1/D.sum()) * (np.diag(D) @ u.reshape((n,k))).sum(axis = 0))).flatten()
+# 
+# u_flat = newton(models[4].u.flatten(), proj, jac, hess, verbose=True)
+# 
+# # =============================================================================
+# # start_time = time.time()
+# # u = newton(models[255].u.flatten(), W, train_ind, y, p, verbose=True).reshape((n,k))
+# # end_time = time.time()
+# # =============================================================================
+# 
+# plt.scatter(X[:, 0], X[:, 1], c = predict(u))
+# 
+# print(f"Runtime = {(end_time - start_time)/60:.2f} min")
+# 
 # =============================================================================
-
-plt.scatter(X[:, 0], X[:, 1], c = predict(u))
-
-print(f"Runtime = {(end_time - start_time)/60:.2f} min")
-
 
 # =============================================================================
 ## Test constrained newton minimization by finding the point on a circle closest

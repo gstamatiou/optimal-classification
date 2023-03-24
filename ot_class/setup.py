@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='ot_class',
-      version='0.1',
+      version='0.2',
       description='Optimal transport methods for classification',
       url='https://github.com/gstamatiou/optimal-classification',
       author='Giorgos Stamatiou',
@@ -12,6 +12,7 @@ setup(name='ot_class',
           'graphlearning',
           'numpy',
           'matplotlib',
-          'Pillow'
+          'Pillow',
+          'tensorflow'
           ],
       zip_safe=False)

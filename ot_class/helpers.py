@@ -28,6 +28,14 @@ def euclidean_basis(i, k):
     eye = np.eye(k)
     return eye[i]
 
+"""
+Returns the accuracy (in [0,1]) of the predictions
+predictions: (n,) array with elements from 0, ..., k
+labels: (n,) array with elements from 0, ..., k
+"""
+def calculate_accuracy(predictions, labels):
+    return 1 - np.count_nonzero(predictions - labels)/labels.size
+
 # Example
 # print(euclidean_basis(0, 4))
 # print(euclidean_basis(2, 4))
